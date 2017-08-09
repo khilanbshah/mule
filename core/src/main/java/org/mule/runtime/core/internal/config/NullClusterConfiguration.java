@@ -6,6 +6,8 @@
  */
 package org.mule.runtime.core.internal.config;
 
+import org.mule.runtime.core.api.cluster.ClusterConfiguration;
+
 /**
  * Empty cluster configuration to be used when the instance does not belong to a cluster
  */

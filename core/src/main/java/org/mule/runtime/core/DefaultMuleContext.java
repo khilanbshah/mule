@@ -109,7 +109,7 @@ import org.mule.runtime.core.api.util.UUID;
 import org.mule.runtime.core.api.util.concurrent.Latch;
 import org.mule.runtime.core.api.util.queue.Queue;
 import org.mule.runtime.core.api.util.queue.QueueManager;
-import org.mule.runtime.core.internal.config.ClusterConfiguration;
+import org.mule.runtime.core.api.cluster.ClusterConfiguration;
 import org.mule.runtime.core.internal.config.DefaultCustomizationService;
 import org.mule.runtime.core.internal.config.NullClusterConfiguration;
 import org.mule.runtime.core.internal.connector.DefaultSchedulerController;

@@ -13,7 +13,7 @@ import java.util.function.Supplier;
  *
  * @since 4.0
  */
-public class TimeSupplier implements Supplier<Long> {
+public class TimeSupplier implements Supplier<Long> { //TODO change this to an abstract class!
 
   /**
    * Returns {@link System#currentTimeMillis()}

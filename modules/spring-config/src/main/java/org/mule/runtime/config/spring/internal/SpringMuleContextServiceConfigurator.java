@@ -15,6 +15,7 @@ import static org.mule.runtime.api.value.ValueProviderService.VALUE_PROVIDER_SER
 import static org.mule.runtime.config.spring.internal.InjectParamsFromContextServiceProxy.createInjectProviderParamsServiceProxy;
 import static org.mule.runtime.core.api.config.MuleProperties.LOCAL_OBJECT_LOCK_FACTORY;
 import static org.mule.runtime.core.api.config.MuleProperties.LOCAL_OBJECT_STORE_MANAGER;
+import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_CLUSTER_CONFIGURATION;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_CLUSTER_SERVICE;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_COMPONENT_INITIAL_STATE_MANAGER;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_CONFIGURATION_COMPONENT_LOCATOR;
@@ -101,6 +102,7 @@ import org.mule.runtime.core.el.mvel.MVELExpressionLanguage;
 import org.mule.runtime.core.internal.cluster.DefaultClusterService;
 import org.mule.runtime.core.internal.config.CustomService;
 import org.mule.runtime.core.internal.config.CustomServiceRegistry;
+import org.mule.runtime.core.internal.config.NullClusterConfiguration;
 import org.mule.runtime.core.internal.connection.DefaultConnectionManager;
 import org.mule.runtime.core.internal.connectivity.DefaultConnectivityTestingService;
 import org.mule.runtime.core.internal.connector.MuleConnectorOperationLocator;
@@ -219,6 +221,7 @@ class SpringMuleContextServiceConfigurator {
       .put(OBJECT_SCHEDULER_POOLS_CONFIG, getConstantObjectBeanDefinition(SchedulerContainerPoolsConfig.getInstance()))
       .put(OBJECT_SCHEDULER_BASE_CONFIG, getBeanDefinition(SchedulerBaseConfigFactory.class))
       .put(OBJECT_CLUSTER_SERVICE, getBeanDefinition(DefaultClusterService.class))
+      .put(OBJECT_CLUSTER_CONFIGURATION, getBeanDefinition(NullClusterConfiguration.class))
       .build();
 
   private final SpringConfigurationComponentLocator componentLocator;

@@ -33,7 +33,7 @@ import org.mule.runtime.core.api.connector.SchedulerController;
 import org.mule.runtime.core.api.exception.SystemExceptionHandler;
 import org.mule.runtime.core.api.transformer.DataTypeConversionResolver;
 import org.mule.runtime.core.api.util.StreamCloserService;
-import org.mule.runtime.core.internal.config.ClusterConfiguration;
+import org.mule.runtime.core.api.cluster.ClusterConfiguration;
 import org.mule.runtime.core.api.config.builders.DefaultsConfigurationBuilder;
 import org.mule.runtime.core.api.context.notification.ServerNotificationManager;
 import org.mule.runtime.core.api.exception.MessagingException;
