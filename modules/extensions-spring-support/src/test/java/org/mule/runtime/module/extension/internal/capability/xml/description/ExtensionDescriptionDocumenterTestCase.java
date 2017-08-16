@@ -32,12 +32,12 @@ import org.mule.runtime.extension.api.loader.ExtensionLoadingContext;
 import org.mule.runtime.extension.api.resources.GeneratedResource;
 import org.mule.runtime.extension.internal.loader.DefaultExtensionLoadingContext;
 import org.mule.runtime.extension.internal.loader.ExtensionModelFactory;
-import org.mule.runtime.module.extension.internal.AbstractAnnotationProcessorTestCase;
 import org.mule.runtime.module.extension.internal.capability.xml.extension.TestExtensionWithDocumentation;
 import org.mule.runtime.module.extension.internal.loader.enricher.ExtensionDescriptionsEnricher;
 import org.mule.runtime.module.extension.internal.loader.java.DefaultJavaModelLoaderDelegate;
 import org.mule.runtime.module.extension.internal.resources.documentation.ExtensionDocumentationResourceGenerator;
 import org.mule.tck.size.SmallTest;
+import com.google.testing.compile.JavaFileObjects;
 import org.junit.Test;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -46,12 +46,15 @@ import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.tools.JavaFileObject;
+import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @SmallTest
-public class ExtensionDescriptionDocumenterTestCase extends AbstractAnnotationProcessorTestCase {
+public class ExtensionDescriptionDocumenterTestCase {
 
   @Test
   public void persistDocumentation() throws Exception {
@@ -169,4 +172,18 @@ public class ExtensionDescriptionDocumenterTestCase extends AbstractAnnotationPr
     return ops.stream().filter(operationModel -> operationModel.getName().equals(opeName)).findAny().orElse(null);
   }
 
+  private Iterable<JavaFileObject> testSourceFiles() throws Exception {
+    // this will be xxx/target/test-classes
+    File folder = new File(getClass().getClassLoader().getResource("").getPath().toString());
+    // up to levels
+    folder = folder.getParentFile().getParentFile();
+    folder = new File(folder, "src/test/java/org/mule/runtime/module/extension/internal/capability/xml/extension");
+    File[] files = folder.listFiles((dir, name) -> name.endsWith(".java"));
+    assertThat(files, is(notNullValue()));
+    List<JavaFileObject> javaFileObjects = new ArrayList<>(files.length);
+    for (File file : files) {
+      javaFileObjects.add(JavaFileObjects.forResource(file.toURI().toURL()));
+    }
+    return javaFileObjects;
+  }
 }

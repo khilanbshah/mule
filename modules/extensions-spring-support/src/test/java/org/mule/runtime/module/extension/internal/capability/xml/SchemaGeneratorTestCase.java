@@ -24,13 +24,13 @@ import static org.mule.test.module.extension.internal.util.ExtensionsTestUtils.c
 
 import org.mule.runtime.api.dsl.DslResolvingContext;
 import org.mule.runtime.api.meta.model.ExtensionModel;
-import org.mule.runtime.api.meta.model.XmlDslModel;
 import org.mule.runtime.api.meta.type.TypeCatalog;
 import org.mule.runtime.core.api.registry.ServiceRegistry;
+import org.mule.runtime.extension.api.dsl.syntax.resources.spi.ExtensionSchemaGenerator;
 import org.mule.runtime.extension.api.loader.DeclarationEnricher;
 import org.mule.runtime.extension.api.loader.ExtensionModelLoader;
 import org.mule.runtime.module.extension.api.loader.java.DefaultJavaExtensionModelLoader;
-import org.mule.runtime.module.extension.internal.capability.xml.schema.SchemaGenerator;
+import org.mule.runtime.module.extension.internal.capability.xml.schema.DefaultExtensionSchemaGenerator;
 import org.mule.runtime.module.extension.internal.loader.enricher.JavaXmlDeclarationEnricher;
 import org.mule.runtime.module.extension.internal.runtime.connectivity.basic.GlobalInnerPojoConnector;
 import org.mule.runtime.module.extension.internal.runtime.connectivity.basic.GlobalPojoConnector;
@@ -55,12 +55,11 @@ import org.mule.test.transactional.TransactionalExtension;
 import org.mule.test.typed.value.extension.extension.TypedValueExtension;
 import org.mule.test.values.extension.ValuesExtension;
 import org.mule.test.vegan.extension.VeganExtension;
-
-import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -87,7 +86,7 @@ public class SchemaGeneratorTestCase extends AbstractMuleTestCase {
   @Parameterized.Parameter(1)
   public String expectedXSD;
 
-  private SchemaGenerator generator;
+  private ExtensionSchemaGenerator generator = new DefaultExtensionSchemaGenerator();
   private String expectedSchema;
 
 
@@ -173,14 +172,12 @@ public class SchemaGeneratorTestCase extends AbstractMuleTestCase {
 
   @Before
   public void setup() throws IOException {
-    generator = new SchemaGenerator();
     expectedSchema = getResourceAsString("schemas/" + expectedXSD, getClass());
   }
 
   @Test
   public void generate() throws Exception {
-    XmlDslModel languageModel = extensionUnderTest.getXmlDslModel();
-    String schema = generator.generate(extensionUnderTest, languageModel, new SchemaTestDslContext());
+    String schema = generator.generate(extensionUnderTest, new SchemaTestDslContext());
     try {
       compareXML(expectedSchema, schema);
     } catch (Throwable t) {
