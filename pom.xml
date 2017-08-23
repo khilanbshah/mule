@@ -214,27 +214,27 @@
         <allureReportVersion>2.3.1</allureReportVersion>
 
         <!-- Mule Snapshot Dependencies -->
-        <muleDslApiVersion>1.0.0-SNAPSHOT</muleDslApiVersion>
-        <muleExtensionsApiVersion>1.0.0-SNAPSHOT</muleExtensionsApiVersion>
-        <muleHttpPolicyApiVersion>1.0.0-SNAPSHOT</muleHttpPolicyApiVersion>
-        <muleMavenClientApi>1.0.0-SNAPSHOT</muleMavenClientApi>
-        <muleMavenClientImpl>1.0.0-SNAPSHOT</muleMavenClientImpl>
+        <muleDslApiVersion>1.0.0-rc.darkseid-SNAPSHOT</muleDslApiVersion>
+        <muleExtensionsApiVersion>1.0.0-rc.darkseid-SNAPSHOT</muleExtensionsApiVersion>
+        <muleHttpPolicyApiVersion>1.0.0-rc.darkseid-SNAPSHOT</muleHttpPolicyApiVersion>
+        <muleMavenClientApi>1.0.0-rc.darkseid-SNAPSHOT</muleMavenClientApi>
+        <muleMavenClientImpl>1.0.0-rc.darkseid-SNAPSHOT</muleMavenClientImpl>
         <muleMavenClientTest>1.0.0-rc.darkseid-SNAPSHOT</muleMavenClientTest>
-        <mulePolicyApiVersion>1.0.0-SNAPSHOT</mulePolicyApiVersion>
-        <muleApiVersion>1.0.0-SNAPSHOT</muleApiVersion>
-        <muleMetadataModelVersion>1.0.0-SNAPSHOT</muleMetadataModelVersion>
+        <mulePolicyApiVersion>1.0.0-rc.darkseid-SNAPSHOT</mulePolicyApiVersion>
+        <muleApiVersion>1.0.0-rc.darkseid-SNAPSHOT</muleApiVersion>
+        <muleMetadataModelVersion>1.0.0-rc.darkseid-SNAPSHOT</muleMetadataModelVersion>
         <metadataModelApiVersion>${muleMetadataModelVersion}</metadataModelApiVersion>
 
-        <muleSpringModuleTestVersion>1.0.0-SNAPSHOT</muleSpringModuleTestVersion>
-        <muleHttpConnectorTestVersion>1.0.0-SNAPSHOT</muleHttpConnectorTestVersion>
-        <muleSocketsConnectorTestVersion>1.0.0-SNAPSHOT</muleSocketsConnectorTestVersion>
-        <muleFileConnectorTestVersion>1.0.0-SNAPSHOT</muleFileConnectorTestVersion>
-        <muleJmsConnectorTestVersion>1.0.0-SNAPSHOT</muleJmsConnectorTestVersion>
+        <muleSpringModuleTestVersion>0.9.0-rc.darkseid-SNAPSHOT</muleSpringModuleTestVersion>
+        <muleHttpConnectorTestVersion>0.9.0-rc.darkseid-SNAPSHOT</muleHttpConnectorTestVersion>
+        <muleSocketsConnectorTestVersion>0.9.0-rc.darkseid-SNAPSHOT</muleSocketsConnectorTestVersion>
+        <muleFileConnectorTestVersion>0.9.0-rc.darkseid-SNAPSHOT</muleFileConnectorTestVersion>
+        <muleJmsConnectorTestVersion>0.9.0-rc.darkseid-SNAPSHOT</muleJmsConnectorTestVersion>
 
-        <muleFileCommonsTestVersion>1.0.0-SNAPSHOT</muleFileCommonsTestVersion>
+        <muleFileCommonsTestVersion>0.9.0-rc.darkseid-SNAPSHOT</muleFileCommonsTestVersion>
 
-        <muleHttpServiceTestVersion>1.0.0-SNAPSHOT</muleHttpServiceTestVersion>
-        <muleSchedulerServiceTestVersion>1.0.0-SNAPSHOT</muleSchedulerServiceTestVersion>
+        <muleHttpServiceTestVersion>0.9.0-rc.darkseid-SNAPSHOT</muleHttpServiceTestVersion>
+        <muleSchedulerServiceTestVersion>0.9.0-rc.darkseid-SNAPSHOT</muleSchedulerServiceTestVersion>
 
         <!-- Test Extensions -->
         <muleMetadataExtensionTestVersion>4.0.0-rc.darkseid-SNAPSHOT</muleMetadataExtensionTestVersion>
