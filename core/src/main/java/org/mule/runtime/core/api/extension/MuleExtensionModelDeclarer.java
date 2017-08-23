@@ -68,6 +68,8 @@ import org.mule.runtime.core.api.source.SchedulingStrategy;
 import org.mule.runtime.core.api.source.polling.CronScheduler;
 import org.mule.runtime.core.api.source.polling.FixedFrequencyScheduler;
 import org.mule.runtime.extension.api.declaration.type.ExtensionsTypeLoaderFactory;
+import org.mule.runtime.extension.api.error.MuleErrors;
+import org.mule.runtime.extension.api.stereotype.MuleStereotypeFactory;
 import org.mule.runtime.extension.internal.property.LiteralModelProperty;
 
 import com.google.gson.reflect.TypeToken;
@@ -313,7 +315,7 @@ class MuleExtensionModelDeclarer {
   private void declareFlow(ExtensionDeclarer extensionDeclarer, ClassTypeLoader typeLoader) {
     ConstructDeclarer flow = extensionDeclarer.withConstruct(FLOW_ELEMENT_IDENTIFIER)
         .allowingTopLevelDefinition()
-        .withStereotype(MuleExtensionModelProvider.FLOW_STEREOTYPE);
+        .withStereotype(MuleStereotypeFactory.flow());
 
     flow.onDefaultParameterGroup().withOptionalParameter("initialState").defaultingTo("started")
         .ofType(BaseTypeBuilder.create(JAVA).stringType().id(String.class.getName()).enumOf("started", "stopped").build());
@@ -321,10 +323,10 @@ class MuleExtensionModelDeclarer {
         .ofType(typeLoader.load(Integer.class));
 
     flow.withComponent("source")
-        .withAllowedStereotypes(MuleExtensionModelProvider.SOURCE_STEREOTYPE);
+        .withAllowedStereotypes(MuleStereotypeFactory.source());
     flow.withChain().setRequired(true);
     flow.withComponent("errorHandler")
-        .withAllowedStereotypes(MuleExtensionModelProvider.ERROR_HANDLER_STEREOTYPE);
+        .withAllowedStereotypes(MuleStereotypeFactory.errorHandler());
 
   }
 
@@ -391,12 +393,12 @@ class MuleExtensionModelDeclarer {
 
     tryScope.withChain();
     tryScope.withOptionalComponent("errorHandler")
-        .withAllowedStereotypes(MuleExtensionModelProvider.ERROR_HANDLER_STEREOTYPE);
+        .withAllowedStereotypes(MuleStereotypeFactory.errorHandler());
   }
 
   private void declareErrorHandler(ExtensionDeclarer extensionDeclarer, ClassTypeLoader typeLoader) {
     ConstructDeclarer errorHandler = extensionDeclarer.withConstruct("errorHandler")
-        .withStereotype(MuleExtensionModelProvider.ERROR_HANDLER_STEREOTYPE)
+        .withStereotype(MuleStereotypeFactory.errorHandler())
         .allowingTopLevelDefinition()
         .describedAs(
                      "Allows the definition of internal selective handlers. It will route the error to the first handler that matches it."

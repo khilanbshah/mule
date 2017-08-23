@@ -76,7 +76,7 @@ public final class DefaultExecutionMediator implements ExecutionMediator {
 
   private final RetryPolicyTemplate fallbackRetryPolicyTemplate = new NoRetryPolicyTemplate();
 
-  public DefaultExecutionMediator(ExtensionModel extensionModel, OperationModel operationModel,
+  public DefaultExecutionMediator(ExtensionModel extensionModel, ComponentModel operationModel,
                                   ConnectionManagerAdapter connectionManager, ErrorTypeRepository typeRepository) {
     this.connectionManager = connectionManager;
     this.exceptionEnricherManager = new ExceptionHandlerManager(extensionModel, operationModel);

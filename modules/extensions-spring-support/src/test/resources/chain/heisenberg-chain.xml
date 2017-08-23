@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:heisenberg="http://www.mulesoft.org/schema/mule/heisenberg"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+               http://www.mulesoft.org/schema/mule/heisenberg http://www.mulesoft.org/schema/mule/heisenberg/current/mule-heisenberg.xsd">
+
+    <configuration-properties file="heisenberg.properties"/>
+
+    <heisenberg:door victim="Top Level Skyler" address="308 Negra Arroyo Lane" name="door"/>
+
+    <heisenberg:door victim="#[vars.victim]" address="308 Negra Arroyo Lane" name="dynamicDoor"/>
+
+    <heisenberg:ricin microgramsPerKilo="22" name="ricin-weapon">
+        <heisenberg:destination victim="Lidia" address="Stevia coffe shop"/>
+    </heisenberg:ricin>
+
+    <heisenberg:config name="heisenberg"
+                       myName="heisenberg"
+                       age="50"
+                       cancer="true"
+                       dateOfBirth="1959-09-07T00:00:00"
+                       dateOfDeath="2011-09-07T00:00:00-05:00"
+                       money="1000000"
+                       finalHealth="CANCER">
+        <heisenberg:enemies>
+            <heisenberg:enemy value="Gustavo Fring"/>
+            <heisenberg:enemy value="Hank"/>
+        </heisenberg:enemies>
+        <heisenberg:monthly-incomes>
+            <heisenberg:monthly-income value="12000"/>
+            <heisenberg:monthly-income value="500"/>
+        </heisenberg:monthly-incomes>
+        <heisenberg:next-door address="pollos hermanos" victim="Gustavo Fring">
+            <heisenberg:previous victim="Krazy-8" address="Jesse's"/>
+        </heisenberg:next-door>
+        <heisenberg:ricin-packs>
+            <heisenberg:ricin microgramsPerKilo="22">
+                <heisenberg:destination victim="Lidia" address="Stevia coffe shop"/>
+            </heisenberg:ricin>
+        </heisenberg:ricin-packs>
+        <heisenberg:known-addresses>
+            <heisenberg:known-address value="one address"/>
+        </heisenberg:known-addresses>
+        <heisenberg:inline-barber-preferences beardTrimming="MUSTACHE" fullyBald="false"/>
+    </heisenberg:config>
+
+    <flow name="executeManyKillOperations">
+        <set-payload value="#[0]"/>
+        <heisenberg:kill-many reason="some reason">
+            <heisenberg:kill-operations>
+                <heisenberg:kill-with-id id="#[payload + 1]"/>
+                <heisenberg:kill-with-id id="#[payload + 1]"/>
+                <heisenberg:kill-with-id id="#[payload + 1]"/>
+            </heisenberg:kill-operations>
+        </heisenberg:kill-many>
+    </flow>
+    
+    <flow name="voidConstructDoesNotMutateMessage">
+        <set-payload value="original payload"/>
+        <heisenberg:execute-anything>
+            <heisenberg:chain>
+                <set-payload value="modified payload"/>
+            </heisenberg:chain>
+        </heisenberg:execute-anything>
+    </flow>
+    
+    <flow name="execute-anything">
+        <set-payload value="outside"/>
+        <heisenberg:execute-anything>
+            <heisenberg:chain>
+                <set-payload value="hola"/>
+                <set-payload value="hola"/>
+                <logger level="ERROR" message="#[payload]"/>
+                <set-payload value="dsadsadsadsa"/>
+                <logger level="ERROR" message="#[payload]"/>
+            </heisenberg:chain>
+        </heisenberg:execute-anything>
+    </flow>
+
+</mule>

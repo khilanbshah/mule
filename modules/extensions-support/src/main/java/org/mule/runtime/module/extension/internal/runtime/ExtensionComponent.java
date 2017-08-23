@@ -71,14 +71,16 @@ import org.mule.runtime.module.extension.internal.runtime.operation.OperationMes
 import org.mule.runtime.module.extension.internal.runtime.resolver.ParameterValueResolver;
 import org.mule.runtime.module.extension.internal.runtime.source.ExtensionMessageSource;
 import org.mule.runtime.module.extension.internal.value.ValueProviderMediator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class that groups all the common behaviour between different extension's components, like {@link OperationMessageProcessor} and
@@ -94,19 +96,19 @@ public abstract class ExtensionComponent<T extends ComponentModel> extends Abstr
 
   private final static Logger LOGGER = LoggerFactory.getLogger(ExtensionComponent.class);
 
-  protected final ExtensionManager extensionManager;
   private final TemplateParser expressionParser = createMuleStyleParser();
   private final ExtensionModel extensionModel;
-  private final T componentModel;
   private final AtomicReference<ConfigurationProvider> configurationProvider = new AtomicReference<>();
   private final MetadataMediator<T> metadataMediator;
   private final ValueProviderMediator<T> valueProviderMediator;
   private final ClassTypeLoader typeLoader;
   private final LazyValue<Boolean> requiresConfig = new LazyValue<>(this::computeRequiresConfig);
 
+  protected final ExtensionManager extensionManager;
   protected final ClassLoader classLoader;
-  private CursorProviderFactory cursorProviderFactory;
+  protected final T componentModel;
 
+  private CursorProviderFactory cursorProviderFactory;
   protected MuleContext muleContext;
 
   @Inject

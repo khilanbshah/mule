@@ -48,97 +48,107 @@ import java.util.stream.Stream;
  */
 public class ErrorsDeclarationEnricher implements DeclarationEnricher {
 
-  private ErrorsModelFactory errorModelDescriber;
-  private ExtensionElement extensionElement;
-  private final LoadingCache<Class<?>, TypeWrapper> typeWrapperCache =
-      CacheBuilder.newBuilder().build(new CacheLoader<Class<?>, TypeWrapper>() {
-
-        @Override
-        public TypeWrapper load(Class<?> clazz) throws Exception {
-          return new TypeWrapper(clazz);
-        }
-      });
-
   @Override
   public void enrich(ExtensionLoadingContext extensionLoadingContext) {
-    ExtensionDeclaration declaration = extensionLoadingContext.getExtensionDeclarer().getDeclaration();
-    Optional<ImplementingTypeModelProperty> implementingType = declaration.getModelProperty(ImplementingTypeModelProperty.class);
-    String extensionNamespace = getExtensionsErrorNamespace(declaration);
-    errorModelDescriber = new ErrorsModelFactory(extensionNamespace);
-    errorModelDescriber.getErrorModels().forEach(declaration::addErrorModel);
-
-    if (implementingType.isPresent()) {
-
-      extensionElement = new ExtensionTypeWrapper<>(implementingType.get().getType());
-      extensionElement.getAnnotation(ErrorTypes.class).ifPresent(errorTypesAnnotation -> {
-
-        ErrorTypeDefinition<?>[] errorTypes = (ErrorTypeDefinition<?>[]) errorTypesAnnotation.value().getEnumConstants();
-
-        if (errorTypes.length > 0) {
-          errorModelDescriber = new ErrorsModelFactory(errorTypes, extensionNamespace);
-          errorModelDescriber.getErrorModels().forEach(declaration::addErrorModel);
-
-          new IdempotentDeclarationWalker() {
-
-            @Override
-            public void onOperation(WithOperationsDeclaration owner, OperationDeclaration declaration) {
-              Optional<ImplementingMethodModelProperty> modelProperty =
-                  declaration.getModelProperty(ImplementingMethodModelProperty.class);
-
-              modelProperty.ifPresent(implementingMethodModelProperty -> {
-                MethodElement methodElement = new MethodWrapper(implementingMethodModelProperty.getMethod());
-                registerOperationErrorTypes(methodElement, declaration, errorModelDescriber, errorTypes);
-              });
-            }
-          }.walk(declaration);
-        }
-      });
-    }
+    new EnricherDelegate().apply(extensionLoadingContext);
   }
 
-  private void registerOperationErrorTypes(MethodElement operationMethod, OperationDeclaration operation,
-                                           ErrorsModelFactory errorModelDescriber,
-                                           ErrorTypeDefinition<?>[] extensionErrorTypes) {
-    getOperationThrowsDeclaration(operationMethod, extensionElement)
-        .ifPresent(throwsAnnotation -> {
-          Class<? extends ErrorTypeProvider>[] providers = throwsAnnotation.value();
-          Stream.of(providers).forEach(provider -> {
-            try {
-              ErrorTypeProvider errorTypeProvider = provider.newInstance();
-              errorTypeProvider.getErrorTypes().stream()
-                  .map(error -> validateOperationThrows(extensionErrorTypes, error))
-                  .map(errorModelDescriber::getErrorModel)
-                  .forEach(operation::addErrorModel);
+  private static class EnricherDelegate {
 
+    private ErrorsModelFactory errorModelDescriber;
+    private ExtensionElement extensionElement;
+    private final LoadingCache<Class<?>, TypeWrapper> typeWrapperCache =
+        CacheBuilder.newBuilder().build(new CacheLoader<Class<?>, TypeWrapper>() {
 
-            } catch (InstantiationException | IllegalAccessException e) {
-              throw new MuleRuntimeException(createStaticMessage("Could not create ErrorTypeProvider of type "
-                  + provider.getName()), e);
-            }
-          });
+          @Override
+          public TypeWrapper load(Class<?> clazz) throws Exception {
+            return new TypeWrapper(clazz);
+          }
         });
-  }
 
-  private Optional<Throws> getOperationThrowsDeclaration(MethodElement operationMethod, ExtensionElement extensionElement) {
-    TypeWrapper operationContainer = typeWrapperCache.getUnchecked(operationMethod.getDeclaringClass());
-    return ofNullable(operationMethod.getAnnotation(Throws.class)
-        .orElseGet(() -> operationContainer.getAnnotation(Throws.class)
-            .orElseGet(() -> extensionElement.getAnnotation(Throws.class)
-                .orElse(null))));
-  }
 
-  private ErrorTypeDefinition validateOperationThrows(ErrorTypeDefinition<?>[] errorTypes, ErrorTypeDefinition error) {
-    Class<?> extensionErrorType = errorTypes.getClass().getComponentType();
+    public void apply(ExtensionLoadingContext extensionLoadingContext) {
+      ExtensionDeclaration declaration = extensionLoadingContext.getExtensionDeclarer().getDeclaration();
+      Optional<ImplementingTypeModelProperty> implementingType =
+          declaration.getModelProperty(ImplementingTypeModelProperty.class);
+      String extensionNamespace = getExtensionsErrorNamespace(declaration);
+      errorModelDescriber = new ErrorsModelFactory(extensionNamespace);
+      errorModelDescriber.getErrorModels().forEach(declaration::addErrorModel);
 
-    if (error.getClass().equals(MuleErrors.class)) {
-      return error;
+      if (implementingType.isPresent()) {
+
+        extensionElement = new ExtensionTypeWrapper<>(implementingType.get().getType());
+        extensionElement.getAnnotation(ErrorTypes.class).ifPresent(errorTypesAnnotation -> {
+
+          ErrorTypeDefinition<?>[] errorTypes = (ErrorTypeDefinition<?>[]) errorTypesAnnotation.value().getEnumConstants();
+
+          if (errorTypes.length > 0) {
+            errorModelDescriber = new ErrorsModelFactory(errorTypes, extensionNamespace);
+            errorModelDescriber.getErrorModels().forEach(declaration::addErrorModel);
+
+            new IdempotentDeclarationWalker() {
+
+              @Override
+              public void onOperation(WithOperationsDeclaration owner, OperationDeclaration declaration) {
+                Optional<ImplementingMethodModelProperty> modelProperty =
+                    declaration.getModelProperty(ImplementingMethodModelProperty.class);
+
+                modelProperty.ifPresent(implementingMethodModelProperty -> {
+                  MethodElement methodElement = new MethodWrapper(implementingMethodModelProperty.getMethod());
+                  registerOperationErrorTypes(methodElement, declaration, errorModelDescriber, errorTypes);
+                });
+              }
+            }.walk(declaration);
+          }
+        });
+      }
     }
 
-    if (!error.getClass().equals(extensionErrorType) && !error.getClass().getSuperclass().equals(extensionErrorType)) {
-      throw new IllegalModelDefinitionException(format("Invalid operation throws detected, the extension declared" +
-          " to throw errors of %s type, but an error of %s type has been detected", extensionErrorType, error.getClass()));
-    } else {
-      return error;
+    private void registerOperationErrorTypes(MethodElement operationMethod, OperationDeclaration operation,
+                                             ErrorsModelFactory errorModelDescriber,
+                                             ErrorTypeDefinition<?>[] extensionErrorTypes) {
+      getOperationThrowsDeclaration(operationMethod, extensionElement)
+          .ifPresent(throwsAnnotation -> {
+            Class<? extends ErrorTypeProvider>[] providers = throwsAnnotation.value();
+            Stream.of(providers).forEach(provider -> {
+              try {
+                ErrorTypeProvider errorTypeProvider = provider.newInstance();
+                errorTypeProvider.getErrorTypes().stream()
+                    .map(error -> validateOperationThrows(extensionErrorTypes, error))
+                    .map(errorModelDescriber::getErrorModel)
+                    .forEach(operation::addErrorModel);
+
+
+              } catch (InstantiationException | IllegalAccessException e) {
+                throw new MuleRuntimeException(createStaticMessage("Could not create ErrorTypeProvider of type "
+                    + provider.getName()), e);
+              }
+            });
+          });
+    }
+
+    private Optional<Throws> getOperationThrowsDeclaration(MethodElement operationMethod, ExtensionElement extensionElement) {
+      TypeWrapper operationContainer = typeWrapperCache.getUnchecked(operationMethod.getDeclaringClass());
+      return ofNullable(operationMethod.getAnnotation(Throws.class)
+          .orElseGet(() -> operationContainer.getAnnotation(Throws.class)
+              .orElseGet(() -> extensionElement.getAnnotation(Throws.class)
+                  .orElse(null))));
+    }
+
+    private ErrorTypeDefinition validateOperationThrows(ErrorTypeDefinition<?>[] errorTypes, ErrorTypeDefinition error) {
+      Class<?> extensionErrorType = errorTypes.getClass().getComponentType();
+
+      if (error.getClass().equals(MuleErrors.class)) {
+        return error;
+      }
+
+      if (!error.getClass().equals(extensionErrorType) && !error.getClass().getSuperclass().equals(extensionErrorType)) {
+        throw new IllegalModelDefinitionException(format("Invalid operation throws detected, the extension declared" +
+            " to throw errors of %s type, but an error of %s type has been detected", extensionErrorType, error.getClass()));
+      } else {
+        return error;
+      }
     }
   }
+
 }

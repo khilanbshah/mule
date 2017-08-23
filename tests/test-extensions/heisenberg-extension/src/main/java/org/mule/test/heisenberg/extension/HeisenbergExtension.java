@@ -17,7 +17,6 @@ import org.mule.runtime.core.api.extension.ExtensionManager;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.Export;
 import org.mule.runtime.extension.api.annotation.Expression;
-import org.mule.runtime.extension.api.annotation.Extensible;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.ExternalLib;
 import org.mule.runtime.extension.api.annotation.OnException;
@@ -55,8 +54,7 @@ import javax.inject.Inject;
 
 @Extension(name = HeisenbergExtension.HEISENBERG, description = HeisenbergExtension.EXTENSION_DESCRIPTION, category = SELECT,
     minMuleVersion = "4.1")
-@Operations({HeisenbergOperations.class, MoneyLaunderingOperation.class})
-@Extensible(alias = "heisenberg-empire")
+@Operations({HeisenbergOperations.class, MoneyLaunderingOperation.class, CustomKillingOperations.class})
 @OnException(HeisenbergConnectionExceptionEnricher.class)
 @ConnectionProviders(HeisenbergConnectionProvider.class)
 @Sources({HeisenbergSource.class, DEARadioSource.class, AsyncHeisenbergSource.class, ReconnectableHeisenbergSource.class})

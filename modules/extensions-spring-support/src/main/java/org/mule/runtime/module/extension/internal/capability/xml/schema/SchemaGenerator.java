@@ -59,7 +59,7 @@ public class SchemaGenerator {
       @Override
       public void onOperation(OperationModel model) {
         schemaBuilder.registerOperation(model);
-      }
+      }                                         
 
       @Override
       public void onConnectionProvider(ConnectionProviderModel model) {

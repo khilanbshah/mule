@@ -123,12 +123,12 @@
     </flow>
 
     <flow name="killOne">
-        <heisenberg:kill-one reason="I'm the one who knocks">
-            <heisenberg:kill-operation>
+        <heisenberg:kill-many reason="I'm the one who knocks">
+            <heisenberg:kill-operations>
                 <heisenberg:kill-with-custom-message victim="Gustavo Fring"
                                                      goodbyeMessage="bye bye"/>
-            </heisenberg:kill-operation>
-        </heisenberg:kill-one>
+            </heisenberg:kill-operations>
+        </heisenberg:kill-many>
     </flow>
 
     <flow name="injectedExtensionManager">

@@ -34,7 +34,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static reactor.core.publisher.Flux.error;
 import static reactor.core.publisher.Flux.from;
 import static reactor.core.publisher.Mono.fromCallable;
-
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.lifecycle.InitialisationException;
@@ -76,14 +75,13 @@ import org.mule.runtime.module.extension.internal.runtime.execution.OperationArg
 import org.mule.runtime.module.extension.internal.runtime.resolver.ParameterValueResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.ResolverSet;
 
-import org.reactivestreams.Publisher;
-import org.slf4j.Logger;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
 import reactor.core.publisher.Mono;
 
 /**

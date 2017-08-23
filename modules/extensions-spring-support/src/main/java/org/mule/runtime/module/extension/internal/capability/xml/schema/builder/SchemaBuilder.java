@@ -56,13 +56,14 @@ import org.mule.metadata.api.model.StringType;
 import org.mule.metadata.api.visitor.MetadataTypeVisitor;
 import org.mule.runtime.api.dsl.DslResolvingContext;
 import org.mule.runtime.api.meta.ExpressionSupport;
+import org.mule.runtime.api.meta.model.ComponentModel;
 import org.mule.runtime.api.meta.model.ExtensionModel;
 import org.mule.runtime.api.meta.model.ImportedTypeModel;
 import org.mule.runtime.api.meta.model.ParameterDslConfiguration;
 import org.mule.runtime.api.meta.model.XmlDslModel;
 import org.mule.runtime.api.meta.model.config.ConfigurationModel;
 import org.mule.runtime.api.meta.model.connection.ConnectionProviderModel;
-import org.mule.runtime.api.meta.model.operation.OperationModel;
+import org.mule.runtime.api.meta.model.construct.ConstructModel;
 import org.mule.runtime.api.meta.model.parameter.ParameterGroupModel;
 import org.mule.runtime.api.meta.model.parameter.ParameterModel;
 import org.mule.runtime.api.meta.model.parameter.ParameterizedModel;
@@ -89,6 +90,7 @@ import org.mule.runtime.module.extension.internal.capability.xml.schema.model.Fo
 import org.mule.runtime.module.extension.internal.capability.xml.schema.model.Import;
 import org.mule.runtime.module.extension.internal.capability.xml.schema.model.LocalComplexType;
 import org.mule.runtime.module.extension.internal.capability.xml.schema.model.LocalSimpleType;
+import org.mule.runtime.module.extension.internal.capability.xml.schema.model.NamedGroup;
 import org.mule.runtime.module.extension.internal.capability.xml.schema.model.NoFixedFacet;
 import org.mule.runtime.module.extension.internal.capability.xml.schema.model.ObjectFactory;
 import org.mule.runtime.module.extension.internal.capability.xml.schema.model.Restriction;
@@ -98,8 +100,6 @@ import org.mule.runtime.module.extension.internal.capability.xml.schema.model.To
 import org.mule.runtime.module.extension.internal.capability.xml.schema.model.TopLevelSimpleType;
 import org.mule.runtime.module.extension.internal.capability.xml.schema.model.Union;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -108,6 +108,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 
 /**
  * Builder class to generate a XSD schema that describes a {@link ExtensionModel}
@@ -286,7 +289,7 @@ public final class SchemaBuilder {
     return createAttribute(NAME_ATTRIBUTE_NAME, load(String.class), required, NOT_SUPPORTED);
   }
 
-  public SchemaBuilder registerOperation(OperationModel operationModel) {
+  public SchemaBuilder registerOperation(ComponentModel operationModel) {
     operationSchemaDelegate.registerOperation(operationModel, dslResolver.resolve(operationModel));
     return this;
   }
@@ -626,6 +629,13 @@ public final class SchemaBuilder {
     element.setMinOccurs(isRequired ? ONE : ZERO);
     element.setMaxOccurs(MAX_ONE);
     return element;
+  }
+
+  NamedGroup createGroup(QName elementRef, boolean isRequired) {
+    NamedGroup namedGroup = new NamedGroup();
+    namedGroup.setRef(elementRef);
+    namedGroup.setMinOccurs(isRequired ? ONE : ZERO);
+    return namedGroup;
   }
 
   Attribute createAttribute(String name, String description, boolean optional, QName type) {

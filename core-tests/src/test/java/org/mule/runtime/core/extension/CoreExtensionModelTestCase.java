@@ -23,12 +23,8 @@ import static org.mule.runtime.api.meta.model.operation.ExecutionType.CPU_LITE;
 import static org.mule.runtime.core.api.config.MuleManifest.getProductVersion;
 import static org.mule.runtime.core.api.config.MuleManifest.getVendorName;
 import static org.mule.runtime.core.api.exception.Errors.ComponentIdentifiers.Handleable.TRANSFORMATION;
-import static org.mule.runtime.core.api.extension.MuleExtensionModelProvider.ERROR_HANDLER_STEREOTYPE;
-import static org.mule.runtime.core.api.extension.MuleExtensionModelProvider.FLOW_STEREOTYPE;
 import static org.mule.runtime.core.api.extension.MuleExtensionModelProvider.MULE_NAME;
 import static org.mule.runtime.core.api.extension.MuleExtensionModelProvider.MULE_VERSION;
-import static org.mule.runtime.core.api.extension.MuleExtensionModelProvider.PROCESSOR_STEREOTYPE;
-import static org.mule.runtime.core.api.extension.MuleExtensionModelProvider.SOURCE_STEREOTYPE;
 import static org.mule.runtime.core.api.extension.MuleExtensionModelProvider.getExtensionModel;
 import static org.mule.runtime.extension.api.ExtensionConstants.TARGET_PARAMETER_NAME;
 import static org.mule.runtime.extension.api.ExtensionConstants.TARGET_VALUE_PARAMETER_NAME;
@@ -57,6 +53,9 @@ import org.mule.runtime.api.meta.model.operation.OperationModel;
 import org.mule.runtime.api.meta.model.parameter.ParameterModel;
 import org.mule.runtime.api.meta.model.source.SourceModel;
 import org.mule.runtime.core.api.source.SchedulingStrategy;
+import org.mule.runtime.extension.api.stereotype.ErrorHandlerStereotype;
+import org.mule.runtime.extension.api.stereotype.FlowStereotype;
+import org.mule.runtime.extension.api.stereotype.MuleStereotypeFactory;
 import org.mule.tck.junit4.AbstractMuleContextTestCase;
 
 import java.util.Iterator;
@@ -136,7 +135,7 @@ public class CoreExtensionModelTestCase extends AbstractMuleContextTestCase {
   public void flow() {
     final ConstructModel flow = coreExtensionModel.getConstructModel("flow").get();
 
-    assertThat(flow.getStereotypes(), contains(FLOW_STEREOTYPE));
+    assertThat(flow.getStereotype(), instanceOf(FlowStereotype.class));
     assertThat(flow.allowsTopLevelDeclaration(), is(true));
 
     final List<ParameterModel> paramModels = flow.getAllParameterModels();
@@ -156,19 +155,20 @@ public class CoreExtensionModelTestCase extends AbstractMuleContextTestCase {
     assertThat(source.getName(), is("source"));
     assertThat(source.isRequired(), is(false));
     assertThat(source, instanceOf(NestedComponentModel.class));
-    assertThat(((NestedComponentModel) source).getAllowedStereotypes(), contains(SOURCE_STEREOTYPE));
+    assertThat(((NestedComponentModel) source).getAllowedStereotypes(), contains(MuleStereotypeFactory.source()));
 
     NestableElementModel chain = nestedComponents.get(1);
     assertThat(chain.getName(), is("main"));
     assertThat(chain.isRequired(), is(true));
     assertThat(chain, instanceOf(NestedChainModel.class));
-    assertThat(((NestedChainModel) chain).getAllowedStereotypes(), contains(PROCESSOR_STEREOTYPE));
+    assertThat(((NestedChainModel) chain).getAllowedStereotypes(), contains(MuleStereotypeFactory.source()));
 
     NestableElementModel errorHandler = nestedComponents.get(2);
     assertThat(errorHandler.getName(), is("errorHandler"));
     assertThat(errorHandler.isRequired(), is(false));
     assertThat(errorHandler, instanceOf(NestedComponentModel.class));
-    assertThat(((NestedComponentModel) errorHandler).getAllowedStereotypes(), contains(ERROR_HANDLER_STEREOTYPE));
+    assertThat(((NestedComponentModel) errorHandler).getAllowedStereotypes(),
+               contains(MuleStereotypeFactory.errorHandler()));
   }
 
   @Test
@@ -402,7 +402,7 @@ public class CoreExtensionModelTestCase extends AbstractMuleContextTestCase {
     final ConstructModel errorHandlerModel = coreExtensionModel.getConstructModel("errorHandler").get();
 
     assertThat(errorHandlerModel.allowsTopLevelDeclaration(), is(true));
-    assertThat(errorHandlerModel.getStereotypes(), contains(ERROR_HANDLER_STEREOTYPE));
+    assertThat(errorHandlerModel.getStereotype(), instanceOf(ErrorHandlerStereotype.class));
 
     assertThat(errorHandlerModel.getAllParameterModels(), hasSize(0));
 
