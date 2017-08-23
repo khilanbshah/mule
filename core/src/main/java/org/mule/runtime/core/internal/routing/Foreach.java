@@ -35,6 +35,9 @@ import org.mule.runtime.core.api.processor.Processor;
 import org.mule.runtime.core.api.processor.Scope;
 import org.mule.runtime.core.api.processor.strategy.ProcessingStrategy;
 import org.mule.runtime.core.api.util.collection.SplittingStrategy;
+import org.mule.runtime.core.internal.routing.outbound.EventBuilderConfigurer;
+import org.mule.runtime.core.internal.routing.outbound.EventBuilderConfigurerIterator;
+import org.mule.runtime.core.internal.routing.outbound.EventBuilderConfigurerList;
 
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +45,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import com.google.common.collect.Iterators;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import reactor.core.publisher.Flux;
@@ -131,7 +135,7 @@ public class Foreach extends AbstractMessageProcessorOwner implements Initialisa
     AtomicInteger count = new AtomicInteger();
     return fromIterable(
                         // Split into sequence of TypedValue
-                        () -> splittingStrategy.split(request))
+                        () -> splitRequest(request))
                             // If batchSize > 1 then buffer sequence into List<TypedValue<T>> and convert to TypedValue<List<T>>.
                             .transform(p -> batchSize > 1 ? from(p).buffer(batchSize).map(typedValueListToTypedValue()) : p)
                             // For each TypedValue part process the nested chain using the event from the previous part.
@@ -139,7 +143,10 @@ public class Foreach extends AbstractMessageProcessorOwner implements Initialisa
                                     (internalEventFlux, typedValue) -> Mono.from(internalEventFlux)
                                         .map(e -> {
                                           Builder partEventBuilder = builder(e);
-                                          if (typedValue.getValue() instanceof Message) {
+                                          if (typedValue.getValue() instanceof EventBuilderConfigurer) {
+                                            // Support EventBuilderConfigurer currently used by Batch Module
+                                            ((EventBuilderConfigurer) typedValue.getValue()).configure(partEventBuilder);
+                                          } else if (typedValue.getValue() instanceof Message) {
                                             // If value is a Message then use it directly conserving attributes and properties.
                                             partEventBuilder.message((Message) typedValue.getValue());
                                           } else {
@@ -151,6 +158,26 @@ public class Foreach extends AbstractMessageProcessorOwner implements Initialisa
                                         })
                                         .transform(nestedChain))
                             .flatMapMany(identity());
+  }
+
+  private Iterator<TypedValue<?>> splitRequest(InternalEvent request) {
+    Object payloadValue = request.getMessage().getPayload().getValue();
+    if (DEFAULT_SPIT_EXPRESSION.equals(expression) && payloadValue instanceof EventBuilderConfigurerList) {
+      // Support EventBuilderConfigurerList currently used by Batch Module
+      return Iterators.transform(((EventBuilderConfigurerList<Object>) payloadValue).eventBuilderConfigurerIterator(),
+                                 input -> TypedValue.of(input));
+    } else if (DEFAULT_SPIT_EXPRESSION.equals(expression) && payloadValue instanceof EventBuilderConfigurerIterator) {
+      // Support EventBuilderConfigurerIterator currently used by Batch Module
+      return (Iterator<TypedValue<?>>) Iterators
+          .transform((EventBuilderConfigurerIterator) payloadValue,
+                     input -> {
+                       TypedValue<?> typedValue =
+                           TypedValue.of(((EventBuilderConfigurerIterator) payloadValue).nextEventBuilderConfigurer());
+                       return typedValue;
+                     });
+    } else {
+      return splittingStrategy.split(request);
+    }
   }
 
   /*
